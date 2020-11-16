@@ -4,14 +4,16 @@
   <meta charset="UTF-8">
   <title>Title</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <style>
-    .highlight{
-        color: #fff;
-        background-color: #74b9ff;
-    }
-    ::selection {
-      background: #74b9ff;
-    }
+      .highlight {
+          color: #fff;
+          background-color: #74b9ff;
+      }
+
+      ::selection {
+          background: #74b9ff;
+      }
   </style>
 </head>
 <body>
@@ -32,9 +34,28 @@
     methods: {
       onSelect(event) {
         const span = document.createElement('span')
-        span.className='highlight';
+        span.className = 'highlight';
         var selection = window.getSelection().getRangeAt(0)
+        var sel = selection
         selection.surroundContents(span)
+
+        var dataform = new FormData()
+
+        dataform.append('body', '<h1>POST From Axios Hooray</h1>')
+        axios({
+          method: 'post',
+          url: '',
+          data: dataform,
+          headers: {'Content-Type': 'multipart/form-data'}
+        })
+          .then(function (response) {
+            //handle success
+            console.log(response);
+          })
+          .catch(function (response) {
+            //handle error
+            console.log(response);
+          });
       }
     }
   })

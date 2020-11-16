@@ -7,6 +7,14 @@ def test_document_get(db, client):
     assert resp.status_code == 200
 
 
+def test_document_post(db, client):
+    resp = client.post('/document/')
+    assert resp.status_code == 200
+
+
+def test_update_document(db, client):
+    resp = client.post('/document/')
+
 def test_assert_template_used(db, client):
     resp = client.get('/document/')
     assertTemplateUsed(resp, 'core/document.html')
