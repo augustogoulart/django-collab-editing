@@ -19,9 +19,7 @@
 <body>
 <div id="app">
   <div v-on:mouseup="onSelect($event)">
-    {# WARNING #}
-    {# The safe filter isn't safe, and will allow for XSS once the code accepts some javascript. #}
-    {{document.body | safe}}
+    <span v-html="getContext"></span>
   </div>
 </div>
 <script>
@@ -29,19 +27,23 @@
     el: '#app',
     delimiters: ['{(', ')}'],
     data: {
-      selectedText: ''
+      context: JSON.parse('{{document | escapejs}}'),
+    },
+    computed: {
+      getContext() {
+        return this.context[0].fields.body
+      }
     },
     methods: {
       onSelect(event) {
         const span = document.createElement('span')
         span.className = 'highlight';
         var selection = window.getSelection().getRangeAt(0)
-        var sel = selection
         selection.surroundContents(span)
 
         var dataform = new FormData()
 
-        dataform.append('body', '<h1>POST From Axios Hooray</h1>')
+        dataform.append('body', '<h1>POST From Axios Hooray!!!</h1>')
         axios({
           method: 'post',
           url: '',
