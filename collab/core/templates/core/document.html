@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,9 @@
   <title>Title</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="{% static 'js/rangy/rangy-core.js' %}"></script>
+  <script src="{% static 'js/rangy/rangy-serializer.js' %}"></script>
+
   <style>
       .highlight {
           color: #fff;
@@ -18,46 +22,49 @@
 </head>
 <body>
 <div id="app">
-  <div v-on:mouseup="onSelect($event)">
-    <span v-html="getContext"></span>
+  <div @click="restoreSelections">
+    <h1>Restore</h1>
+  </div>
+  <div @mouseup="onSelect">
+    <span v-html="context" ></span>
   </div>
 </div>
 <script>
+  var json_context = JSON.parse('{{document | escapejs}}');
+  var document_body = json_context[0].fields.body
+  rangy.init();
+
   var app = new Vue({
     el: '#app',
     delimiters: ['{(', ')}'],
     data: {
-      context: JSON.parse('{{document | escapejs}}'),
-    },
-    computed: {
-      getContext() {
-        return this.context[0].fields.body
-      }
+      context: document_body,
+      sarializedSelection: null,
     },
     methods: {
-      onSelect(event) {
-        const span = document.createElement('span')
-        span.className = 'highlight';
-        var selection = window.getSelection().getRangeAt(0)
-        selection.surroundContents(span)
-
+      restoreSelections(){
+        rangy.restoreSelectionFromCookie();
+      },
+      onSelect() {
+        rangy.saveSelectionCookie()
+        {% comment %}
+        this.sarializedSelection = rangy.serializeSelection()
         var dataform = new FormData()
-
-        dataform.append('body', '<h1>POST From Axios Hooray!!!</h1>')
+        dataform.append('body', this.savedSelection.toString())
         axios({
-          method: 'post',
-          url: '',
-          data: dataform,
-          headers: {'Content-Type': 'multipart/form-data'}
+           method: 'post',
+           url: '',
+           data: dataform,
+           headers: {'Content-Type': 'multipart/form-data'}
         })
-          .then(function (response) {
-            //handle success
-            console.log(response);
-          })
-          .catch(function (response) {
-            //handle error
-            console.log(response);
-          });
+           .then(function (response) {
+             console.log(response);
+           })
+           .catch(function (response) {
+             console.log(response);
+           });
+        {% endcomment %}
+
       }
     }
   })
