@@ -8,10 +8,17 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="{% static 'js/rangy/rangy-core.js' %}"></script>
   <script src="{% static 'js/rangy/rangy-serializer.js' %}"></script>
+  <script src="{% static 'js/rangy/rangy-classapplier.js' %}"></script>
+  <script src="{% static 'js/rangy/rangy-highlighter.js' %}"></script>
+
   <style>
       ::selection {
           color: #fff;
           background: rgba(52, 152, 219, 0.5);
+      }
+      .highlight {
+          color: #fff;
+          background: rgba(52, 152, 219, 0.5)
       }
   </style>
 </head>
@@ -20,15 +27,15 @@
   <div @click="restoreSelections">
     <h1>Restore</h1>
   </div>
-  <div @mouseup="onSelect">
+  <div @mouseup="saveSelection(); highlight()">
     <span v-html="context"></span>
   </div>
 </div>
 <script>
   var json_context = JSON.parse('{{document | escapejs}}');
-  console.log(json_context)
   var documentBody = json_context[0].fields.body;
   var serializedSelection = json_context[0].fields.serialized_selection;
+
   rangy.init();
 
   var app = new Vue({
@@ -42,7 +49,16 @@
       restoreSelections() {
         rangy.deserializeSelection(this.serializedSelection);
       },
-      onSelect() {
+      highlight() {
+        var highlighter = rangy.createHighlighter();
+        highlighter.addClassApplier(rangy.createClassApplier("highlight", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+        highlighter.highlightSelection("highlight")
+
+      },
+      saveSelection() {
         var selObj = rangy.getSelection();
         this.serializedSelection = rangy.serializeSelection(selObj, true)
 
