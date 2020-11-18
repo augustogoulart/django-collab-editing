@@ -8,15 +8,10 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="{% static 'js/rangy/rangy-core.js' %}"></script>
   <script src="{% static 'js/rangy/rangy-serializer.js' %}"></script>
-
   <style>
-      .highlight {
-          color: #fff;
-          background-color: #74b9ff;
-      }
-
       ::selection {
-          background: #74b9ff;
+          color: #fff;
+          background: rgba(52, 152, 219, 0.5);
       }
   </style>
 </head>
@@ -26,45 +21,46 @@
     <h1>Restore</h1>
   </div>
   <div @mouseup="onSelect">
-    <span v-html="context" ></span>
+    <span v-html="context"></span>
   </div>
 </div>
 <script>
   var json_context = JSON.parse('{{document | escapejs}}');
-  var document_body = json_context[0].fields.body
+  console.log(json_context)
+  var documentBody = json_context[0].fields.body;
+  var serializedSelection = json_context[0].fields.serialized_selection;
   rangy.init();
 
   var app = new Vue({
     el: '#app',
     delimiters: ['{(', ')}'],
     data: {
-      context: document_body,
-      sarializedSelection: null,
+      context: documentBody,
+      serializedSelection: serializedSelection,
     },
     methods: {
-      restoreSelections(){
-        rangy.restoreSelectionFromCookie();
+      restoreSelections() {
+        rangy.deserializeSelection(this.serializedSelection);
       },
       onSelect() {
-        rangy.saveSelectionCookie()
-        {% comment %}
-        this.sarializedSelection = rangy.serializeSelection()
+        var selObj = rangy.getSelection();
+        this.serializedSelection = rangy.serializeSelection(selObj, true)
+
         var dataform = new FormData()
-        dataform.append('body', this.savedSelection.toString())
+
+        dataform.append("body", this.context)
+        dataform.append("serialized_selection", this.serializedSelection)
+
         axios({
            method: 'post',
            url: '',
            data: dataform,
            headers: {'Content-Type': 'multipart/form-data'}
-        })
-           .then(function (response) {
+        }).then(function (response) {
              console.log(response);
-           })
-           .catch(function (response) {
+           }).catch(function (response) {
              console.log(response);
            });
-        {% endcomment %}
-
       }
     }
   })

@@ -7,7 +7,7 @@ document_body = """
     viverra, sem urna gravida libero, congue pretium mauris nibh non ex. Integer eu sapien et ligula ultricies porta ut
     vitae sapien. Vestibulum fringilla sem sit amet lorem euismod, in vehicula purus iaculis. Etiam ut elit blandit,
     sagittis tellus ut, bibendum sem. Donec id tortor sed ante vestibulum consequat. Nunc sed porttitor orci. Morbi
-    dignissim nisi eu tellus venenatis, <span class="highlight">nec fermentum enim porta</span>
+    dignissim nisi eu tellus venenatis, nec fermentum enim porta
     </p>
     <p>
       Nam vel elit ipsum. Pellentesque posuere erat eget elit gravida, vel consequat metus rutrum. Vivamus ultricies justo

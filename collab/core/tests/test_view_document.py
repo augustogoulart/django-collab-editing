@@ -29,4 +29,5 @@ def test_document_context_fields(db, client):
     Document.objects.create(body="body")
     resp = client.get('/document/')
     document = resp.context['document']
-    assert document.body
+    assert "body" in document
+    assert "serialized_selection" in document
