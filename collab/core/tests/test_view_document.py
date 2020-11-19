@@ -1,4 +1,6 @@
-from collab.core.models import Document
+import json
+
+from collab.core.models import Document, Selection
 from pytest_django.asserts import assertTemplateUsed
 
 
@@ -25,9 +27,8 @@ def test_document_view_context(db, client):
     assert "document" in resp.context
 
 
-def test_document_context_fields(db, client):
-    Document.objects.create(body="body")
+def test_document_context_fields_get(db, client):
+    document = Document.objects.create(body="body")
     resp = client.get('/document/')
     document = resp.context['document']
     assert "body" in document
-    assert "serialized_selection" in document

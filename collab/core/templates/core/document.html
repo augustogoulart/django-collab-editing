@@ -32,9 +32,11 @@
   </div>
 </div>
 <script>
-  var json_context = JSON.parse('{{document | escapejs}}');
-  var documentBody = json_context[0].fields.body;
-  var serializedSelection = json_context[0].fields.serialized_selection;
+  var document_context = JSON.parse('{{document | escapejs}}');
+  var documentBody = document_context[0].fields.body;
+
+  var selection_context = JSON.parse('{{selections | escapejs}}');
+  var serializedSelection = selection_context[0].fields.selections;
 
   rangy.init();
 
@@ -64,8 +66,7 @@
 
         var dataform = new FormData()
 
-        dataform.append("body", this.context)
-        dataform.append("serialized_selection", this.serializedSelection)
+        dataform.append("selection", this.serializedSelection)
 
         axios({
            method: 'post',
