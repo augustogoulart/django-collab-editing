@@ -12,13 +12,9 @@
   <script src="{% static 'js/rangy/rangy-highlighter.js' %}"></script>
 
   <style>
-      ::selection {
-          color: #fff;
-          background: rgba(52, 152, 219, 0.5);
-      }
       .highlight {
           color: #fff;
-          background: rgba(52, 152, 219, 0.5)
+          background: rgb(219, 52, 105);
       }
   </style>
 </head>
@@ -27,20 +23,30 @@
   <div @click="restoreSelections">
     <h1>Restore</h1>
   </div>
-  <div @mouseup="saveSelection(); highlight()">
+  <div @mouseup="highlight">
     <span v-html="context"></span>
   </div>
 </div>
 <script>
-  var document_context = JSON.parse('{{document | escapejs}}');
-  var documentBody = document_context[0].fields.body;
+  let document_context = JSON.parse('{{document | escapejs}}');
+  let documentBody = document_context[0].fields.body;
 
-  var selection_context = JSON.parse('{{selections | escapejs}}');
-  var serializedSelection = selection_context[0].fields.selections;
+  let selection_context = JSON.parse('{{selections | escapejs}}');
+  let serializedSelection = [];
 
+  let selection;
+  for (selection = 0; selection < selection_context.length; selection++) {
+    serializedSelection.push(selection_context[selection].fields.selection)
+  }
   rangy.init();
 
-  var app = new Vue({
+  let highlighter = rangy.createHighlighter();
+  highlighter.addClassApplier(rangy.createClassApplier("highlight", {
+    ignoreWhiteSpace: true,
+    tagNames: ["span", "a"]
+  }));
+
+  let app = new Vue({
     el: '#app',
     delimiters: ['{(', ')}'],
     data: {
@@ -49,35 +55,31 @@
     },
     methods: {
       restoreSelections() {
-        rangy.deserializeSelection(this.serializedSelection);
+        for (let i = 0; i < this.serializedSelection.length; i++) {
+          highlighter.deserialize(this.serializedSelection[i])
+        }
+        {#highlighter.deserialize(this.serializedSelection[0]);#}
+        {#highlighter.deserialize(this.serializedSelection[1])#}
       },
       highlight() {
-        var highlighter = rangy.createHighlighter();
-        highlighter.addClassApplier(rangy.createClassApplier("highlight", {
-                ignoreWhiteSpace: true,
-                tagNames: ["span", "a"]
-            }));
         highlighter.highlightSelection("highlight")
-
+        this.saveSelection(highlighter.serialize())
       },
-      saveSelection() {
-        var selObj = rangy.getSelection();
-        this.serializedSelection = rangy.serializeSelection(selObj, true)
+      saveSelection(serialized) {
+        let dataform = new FormData()
 
-        var dataform = new FormData()
-
-        dataform.append("selection", this.serializedSelection)
+        dataform.append("selection", serialized)
 
         axios({
-           method: 'post',
-           url: '',
-           data: dataform,
-           headers: {'Content-Type': 'multipart/form-data'}
+          method: 'post',
+          url: '',
+          data: dataform,
+          headers: {'Content-Type': 'multipart/form-data'}
         }).then(function (response) {
-             console.log(response);
-           }).catch(function (response) {
-             console.log(response);
-           });
+          console.log(response);
+        }).catch(function (response) {
+          console.log(response);
+        });
       }
     }
   })
