@@ -58,8 +58,6 @@
         for (let i = 0; i < this.serializedSelection.length; i++) {
           highlighter.deserialize(this.serializedSelection[i])
         }
-        {#highlighter.deserialize(this.serializedSelection[0]);#}
-        {#highlighter.deserialize(this.serializedSelection[1])#}
       },
       highlight() {
         highlighter.highlightSelection("highlight")
